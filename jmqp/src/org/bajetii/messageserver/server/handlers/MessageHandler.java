@@ -59,7 +59,7 @@ public class MessageHandler extends Handler {
     @Override
     public void handle(HttpExchange ex) throws IOException {
         Headers headers = ex.getRequestHeaders();
-        
+
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
         System.out.println(headers.containsKey("Type"));
@@ -96,7 +96,6 @@ public class MessageHandler extends Handler {
 
         // now; get the body (aka the message) and do the appropriate action:
         String message = ex.getRequestBody().toString();
-
         System.out.println(">>>>>> MESAGE IS >>>>> " + message);
 
         if(type.equals(RequestType.TOPIC)) {
@@ -122,7 +121,7 @@ public class MessageHandler extends Handler {
             }
         } else {    // guaranteed to be a RequestType.PERSONAL; so we can just else:
             try {
-                this.messagingServer.addPersonalMessage(to, message); 
+                this.messagingServer.addPersonalMessage(to, message);
             } catch(MessageQueueFullException e) {
                 this.error(ex, 406, "406 : ErrorUnnaceptable :: the person's inbox is full.");
                 return;
@@ -134,7 +133,7 @@ public class MessageHandler extends Handler {
         String response = String.format(MessageHandler.acceptedResponseMessageFormat, to, message);
         ex.sendResponseHeaders(202, response.length());
         System.out.println(response);
-        
+
         OutputStream os = ex.getResponseBody();
         os.write(("202 : StatusAccepted :: " + response).getBytes());
         os.close();

@@ -57,36 +57,42 @@ public class QueryHandler extends Handler {
     @Override
     public void handle(HttpExchange ex) throws IOException {
         Headers headers = ex.getRequestHeaders();
+
+        System.out.println("QueryHandler handle() method has been called.");
         
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
         if(headers.containsKey("Type")) {
             // then; check that it is either 'Topic' or 'Personal':
             String typ = headers.get("Type").get(0);
+            System.out.println("TYP IS ::: " + typ);
             if(!this.checkType(typ)) {
                 this.errorBadHeader(ex, badTypeErrorFormat);
                 return;
             }
 
-            if(typ == "Topic") {
+            if(typ.equals("Topic")) {
                 type = RequestType.TOPIC;
-            } else if(typ == "Personal") {
+            } else if(typ.equals("Personal")) {
                 type = RequestType.PERSONAL;
             } else {
                 this.errorBadHeader(ex, MessageHandler.badTypeErrorFormat);
                 return;
             }
         } else {
+            System.out.println("I have no type!!!");
             this.errorBadHeader(ex, "No 'Type' header field provided.");
             return;
         }
+
+        System.out.println("TYPE.toString() IS ::: " + type.toString());
 
         // now; get the recipient (located in the body) and a message:
         String result = "";
         String target = ex.getRequestBody().toString();
 
         // check if the request is for a topic discussion or not:
-        if(type == RequestType.TOPIC) {
+        if(type.equals(RequestType.TOPIC)) {
             try {
                 result = this.messagingServer.getTopicMessage(target);
             } catch(MessageServerTopicNotFoundException e) {
