@@ -1,7 +1,7 @@
 package org.bajetii.messageserver.server.handlers;
 
 /**
- * RequestType is the simple Enum representing te two types of request.
+ * RequestType is the simple Enum representing the two types of request.
  */
 public enum RequestType {
 

@@ -1,6 +1,7 @@
 package org.bajetii.messageserver;
 
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import com.sun.net.httpserver.HttpServer;
@@ -18,11 +19,18 @@ public class Main {
         // NOTE: hardcoded timeout !!!
         MessagingServer ms = new MessagingServer(30);
      
-        // NOTE: hardcoded PORT !!!
-        HttpServer server = HttpServer.create(new InetSocketAddress(8989));
-        server.createContext("/bajetii/jmqp", new MainHandler(ms));
-        server.setExecutor(null);
-        server.start();
-    }
+        HttpServer server;
+		try {
+	        // NOTE: hardcoded PORT !!!
+			server = HttpServer.create(new InetSocketAddress(8989), 100);
+			server.createContext("/bajetii/jmqp", new MainHandler(ms));
+	        server.setExecutor(null);
+	        server.start();
 
+	        System.out.println("Messaging server started.");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
 }

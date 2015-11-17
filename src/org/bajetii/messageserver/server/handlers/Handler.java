@@ -56,7 +56,7 @@ public abstract class Handler implements HttpHandler {
      * headers.
      */
     protected boolean checkType(String type) {
-        if(!(type == "Topic" || type == "Personal")) {
+        if(!(type.equalsIgnoreCase("Topic") || type.equalsIgnoreCase("Personal"))) {
             return false;
         }
 

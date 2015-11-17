@@ -4,11 +4,11 @@ package org.bajetii.messageserver.server.handlers;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-
 import org.bajetii.messageserver.server.MessagingServer;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueFullException;
+
+import com.sun.net.httpserver.Headers;
+import com.sun.net.httpserver.HttpExchange;
 
 
 /**
@@ -62,17 +62,19 @@ public class MessageHandler extends Handler {
         
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
+        System.out.println(headers.containsKey("Type"));
         if(headers.containsKey("Type")) {
             // then; check that it is either 'Topic' or 'Personal':
             String typ = headers.get("Type").get(0);
+            System.out.println(">>>> " + typ);
             if(!this.checkType(typ)) {
                 this.errorBadHeader(ex, badTypeErrorFormat);
                 return;
             }
 
-            if(typ == "Topic") {
+            if(typ.equalsIgnoreCase("Topic")) {
                 type = RequestType.TOPIC;
-            } else if(typ == "Personal") {
+            } else if(typ.equalsIgnoreCase("Personal")) {
                 type = RequestType.PERSONAL;
             } else {
                 this.errorBadHeader(ex, MessageHandler.badTypeErrorFormat);
@@ -89,12 +91,16 @@ public class MessageHandler extends Handler {
             to = headers.get("To").get(0);
         } else {
             this.errorBadHeader(ex, "No 'To' header field provided.");
+            return;
         }
 
         // now; get the body (aka the message) and do the appropriate action:
         String message = ex.getRequestBody().toString();
 
-        if(type == RequestType.TOPIC) {
+        System.out.println(">>>>>> MESAGE IS >>>>> " + message);
+
+        if(type.equals(RequestType.TOPIC)) {
+        	System.out.println(">>>> TOPIC, Type <<<<<");
             // check for the mandatory 'Timeout' header:
             if(!headers.containsKey("Timeout")) {
                 this.errorBadHeader(ex, "No 'Timeout' header provided for topic message.");
@@ -127,9 +133,11 @@ public class MessageHandler extends Handler {
         // send out StatusAccespted and a positive response:
         String response = String.format(MessageHandler.acceptedResponseMessageFormat, to, message);
         ex.sendResponseHeaders(202, response.length());
+        System.out.println(response);
         
         OutputStream os = ex.getResponseBody();
         os.write(("202 : StatusAccepted :: " + response).getBytes());
+        os.close();
     }
 
 }
