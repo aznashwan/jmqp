@@ -73,6 +73,7 @@ public abstract class Handler implements HttpHandler {
      * @param   message String message to be returned
      */
     protected void error(HttpExchange ex, int code, String message) throws IOException {
+        System.out.println("error: " + message);
         ex.sendResponseHeaders(code, message.length());
         this.writeToOutputStream(ex.getResponseBody(), message);
     }
@@ -86,9 +87,10 @@ public abstract class Handler implements HttpHandler {
      */
     protected void errorBadHeader(HttpExchange ex, String message) throws IOException {
         String response = "400 : BadRequest :: " + message;
+        System.out.println("errorBadHeader: " + response);
 
         ex.sendResponseHeaders(400, response.length());
-        this.writeToOutputStream(ex.getResponseBody(), message);
+        this.writeToOutputStream(ex.getResponseBody(), response);
     }
 
     /**
@@ -100,6 +102,7 @@ public abstract class Handler implements HttpHandler {
      */
     protected void errorMissingResource(HttpExchange ex, String message) throws IOException {
         String response = "404 : ErrorMissing :: " + message;
+        System.out.println("errorMissingResource: " + response);
 
         ex.sendResponseHeaders(404, response.length());
         this.writeToOutputStream(ex.getResponseBody(), message);

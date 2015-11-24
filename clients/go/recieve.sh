@@ -1,1 +1,4 @@
-./client --app-domain bajetii/jmqp --port 8989 --ip 127.0.0.1 --message HELLO THERE!!! --name ibalutoiu -personal -send
+#!/usr/bin/env sh
+
+./client --ip 127.0.0.1 --port 8989 --app-path bajetii/jmqp \
+    --read --personal --name ibalutoiu

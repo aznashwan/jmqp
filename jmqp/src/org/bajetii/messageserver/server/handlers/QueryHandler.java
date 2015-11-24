@@ -107,6 +107,7 @@ public class QueryHandler extends Handler {
                 return;
             }
         } else { // NOTE: guaranteed to be RequestType.PERSONAL otherwise.
+            System.out.println("Fetching personal message for " + target);
             try {
             	System.out.println(">>>> GETTING RESULT FOR PERSONAL >>>");
                 result = this.messagingServer.getPersonalMessage(target);

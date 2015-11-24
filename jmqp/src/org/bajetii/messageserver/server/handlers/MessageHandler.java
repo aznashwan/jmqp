@@ -90,7 +90,9 @@ public class MessageHandler extends Handler {
         String to = "";
         if(headers.containsKey("To")) {
             to = headers.get("To").get(0);
+            System.out.println("Message to be sent to: " + to);
         } else {
+            System.out.println("'To' not provided: " + headers.containsKey("To"));
             this.errorBadHeader(ex, "No 'To' header field provided.");
             return;
         }
@@ -100,7 +102,7 @@ public class MessageHandler extends Handler {
         System.out.println(">>>>>> MESAGE IS >>>>> " + message);
 
         if(type.equals(RequestType.TOPIC)) {
-        	System.out.println(">>>> TOPIC, Type <<<<<");
+            System.out.println("Adding topic message \"" + message + "\" for " + to + ".");
             // check for the mandatory 'Timeout' header:
             if(!headers.containsKey("Timeout")) {
                 this.errorBadHeader(ex, "No 'Timeout' header provided for topic message.");
@@ -121,6 +123,7 @@ public class MessageHandler extends Handler {
             } catch(Exception e) {
             }
         } else {    // guaranteed to be a RequestType.PERSONAL; so we can just else:
+            System.out.println("Adding personal message \"" + message + "\" for " + to + ".");
             try {
                 this.messagingServer.addPersonalMessage(to, message);
             } catch(MessageQueueFullException e) {
