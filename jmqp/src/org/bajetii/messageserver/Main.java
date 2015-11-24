@@ -27,7 +27,7 @@ public class Main {
 	        server.setExecutor(null);
 	        server.start();
 
-	        System.out.println("Messaging server started.");
+	        System.out.println("Messaging server started. Listening on 8989.");
 
 		} catch (IOException e) {
 			e.printStackTrace();
