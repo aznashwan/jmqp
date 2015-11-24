@@ -144,13 +144,14 @@ func readMessage() error {
 	client := &http.Client{}
 
 	// prepare the request:
-	req, err := http.NewRequest("GET", getAppUrl(), strings.NewReader(name))
+	req, err := http.NewRequest("GET", getAppUrl(), nil)
 	if err != nil {
 		return err
 	}
 
 	// set the required headers:
 	req.Header.Set("Type", getRequestType())
+	req.Header.Set("To", name)
 
 	// then; do the actual request:
 	resp, err := client.Do(req)

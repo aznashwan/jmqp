@@ -19,9 +19,7 @@ import org.bajetii.messageserver.server.exceptions.MessageServerTopicNotFoundExc
  * ### !!!  Query Message Composition:
  *          A query request message's headers must contain the following:
  *              - 'Type' :: the type of the message; either 'Topic' or 'Personal'
- *
- *          The message body: should contain the username/topicname desired to
- *          be queried.
+ *              - 'To'   :: the name of the person/topic queried
  *
  *          To 'query' the server for the given messages; the aforementioned
  *          structure must be GETed from the server.
@@ -89,11 +87,19 @@ public class QueryHandler extends Handler {
 
         System.out.println("TYPE.toString() IS ::: " + type.toString());
 
-        // now; get the recipient (located in the body) and a message:
-        String result = "";
-        String target = this.readInputStream(ex.getRequestBody());
+        // then; check for the 'To' field:
+        String target = "";
+        if(headers.containsKey("To")) {
+            target = headers.get("To").get(0);
+            System.out.println("Message to be sent to: " + target);
+        } else {
+            System.out.println("'To' not provided: " + headers.containsKey("To"));
+            this.errorBadHeader(ex, "No 'To' header field provided.");
+            return;
+        }
         System.out.println(">>> TARGET IS >>> " + target);
 
+        String result = "";
         // check if the request is for a topic discussion or not:
         if(type.equals(RequestType.TOPIC)) {
         	System.out.println(">>>> GETTING RESULT FOR TOPIC >>>");
