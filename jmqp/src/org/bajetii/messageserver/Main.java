@@ -18,7 +18,7 @@ public class Main {
     public static void main(String args[]) {
         // NOTE: hardcoded timeout !!!
         MessagingServer ms = new MessagingServer(30);
-     
+
         HttpServer server;
 		try {
 	        // NOTE: hardcoded PORT !!!

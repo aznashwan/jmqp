@@ -2,7 +2,6 @@ package org.bajetii.messageserver.server.handlers;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -89,7 +88,7 @@ public class QueryHandler extends Handler {
 
         // now; get the recipient (located in the body) and a message:
         String result = "";
-        String target = ex.getRequestBody().toString();
+        String target = this.readInputStream(ex.getRequestBody());
 
         // check if the request is for a topic discussion or not:
         if(type.equals(RequestType.TOPIC)) {
@@ -116,9 +115,6 @@ public class QueryHandler extends Handler {
 
         // if here; it means the message was succesfully fetched:
         ex.sendResponseHeaders(200, result.length());
-        OutputStream os = ex.getResponseBody();
-        os.write(result.getBytes());
-        os.close();
-
+        this.writeToOutputStream(ex.getResponseBody(), result);
     }
 }

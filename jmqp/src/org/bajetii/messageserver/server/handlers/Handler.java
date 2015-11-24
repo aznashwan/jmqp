@@ -1,6 +1,7 @@
 package org.bajetii.messageserver.server.handlers;
 
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -73,10 +74,7 @@ public abstract class Handler implements HttpHandler {
      */
     protected void error(HttpExchange ex, int code, String message) throws IOException {
         ex.sendResponseHeaders(code, message.length());
-
-        OutputStream os = ex.getResponseBody();
-        os.write(message.getBytes());
-        os.close();
+        this.writeToOutputStream(ex.getResponseBody(), message);
     }
 
     /**
@@ -88,11 +86,9 @@ public abstract class Handler implements HttpHandler {
      */
     protected void errorBadHeader(HttpExchange ex, String message) throws IOException {
         String response = "400 : BadRequest :: " + message;
-        ex.sendResponseHeaders(400, response.length());
 
-        OutputStream os = ex.getResponseBody();
-        os.write(response.getBytes());
-        os.close();
+        ex.sendResponseHeaders(400, response.length());
+        this.writeToOutputStream(ex.getResponseBody(), message);
     }
 
     /**
@@ -104,10 +100,40 @@ public abstract class Handler implements HttpHandler {
      */
     protected void errorMissingResource(HttpExchange ex, String message) throws IOException {
         String response = "404 : ErrorMissing :: " + message;
-        ex.sendResponseHeaders(404, response.length());
 
-        OutputStream os = ex.getResponseBody();
-        os.write(response.getBytes());
+        ex.sendResponseHeaders(404, response.length());
+        this.writeToOutputStream(ex.getResponseBody(), message);
+    }
+
+    /**
+     * readInputStream is a helper method which reads the whole contents of the
+     * given InputStream and returns its String.
+     * <p>
+     * @param   is  InputStream to be read.
+     * @return  s   resulting String.
+     */
+    protected String readInputStream(InputStream is) throws IOException {
+        int i;
+        String buff = "";
+
+        while((i = is.read()) != -1) {
+            buff = buff + (char) i;
+        }
+
+        is.close();
+
+        return  buff;
+    }
+
+    /**
+     * writeToOutputStream is a helper method which writes the given String
+     * to the given OutputStream.
+     * <p>
+     * @param   os  OutputStream to be written to.
+     * @param   s   String to be written out.
+     */
+    protected void writeToOutputStream(OutputStream os, String s) throws IOException {
+        os.write(s.getBytes());
         os.close();
     }
 

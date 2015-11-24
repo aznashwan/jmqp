@@ -2,7 +2,6 @@ package org.bajetii.messageserver.server.handlers;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import org.bajetii.messageserver.server.MessagingServer;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueFullException;
@@ -95,7 +94,7 @@ public class MessageHandler extends Handler {
         }
 
         // now; get the body (aka the message) and do the appropriate action:
-        String message = ex.getRequestBody().toString();
+        String message = this.readInputStream(ex.getRequestBody());
         System.out.println(">>>>>> MESAGE IS >>>>> " + message);
 
         if(type.equals(RequestType.TOPIC)) {
@@ -134,9 +133,7 @@ public class MessageHandler extends Handler {
         ex.sendResponseHeaders(202, response.length());
         System.out.println(response);
 
-        OutputStream os = ex.getResponseBody();
-        os.write(("202 : StatusAccepted :: " + response).getBytes());
-        os.close();
+        this.writeToOutputStream(ex.getResponseBody(), "202 : StatusAccepted :: " + response);
     }
 
 }
