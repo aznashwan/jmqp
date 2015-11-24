@@ -126,7 +126,7 @@ func getRequestType() string {
 // showResponse is a helper method which prints out the details of
 // a given http.Response:
 func showResponse(resp *http.Response) error {
-	body := []byte{}
+	body := make([]byte, 1024)
 	n, err := resp.Body.Read(body)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func showResponse(resp *http.Response) error {
 	body = body[:n]
 
 	fmt.Println("Response code: ", resp.StatusCode)
-	fmt.Println("Reponse body:\n", string(body))
+	fmt.Println("Reponse body:\n" + string(body))
 
 	return nil
 }

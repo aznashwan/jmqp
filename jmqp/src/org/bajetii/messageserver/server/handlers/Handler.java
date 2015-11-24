@@ -4,6 +4,7 @@ package org.bajetii.messageserver.server.handlers;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
@@ -74,7 +75,7 @@ public abstract class Handler implements HttpHandler {
      */
     protected void error(HttpExchange ex, int code, String message) throws IOException {
         System.out.println("error: " + message);
-        ex.sendResponseHeaders(code, message.length());
+        ex.sendResponseHeaders(code, message.length() + 1);
         this.writeToOutputStream(ex.getResponseBody(), message);
     }
 
@@ -89,7 +90,7 @@ public abstract class Handler implements HttpHandler {
         String response = "400 : BadRequest :: " + message;
         System.out.println("errorBadHeader: " + response);
 
-        ex.sendResponseHeaders(400, response.length());
+        ex.sendResponseHeaders(400, response.length() + 1);
         this.writeToOutputStream(ex.getResponseBody(), response);
     }
 
@@ -104,8 +105,8 @@ public abstract class Handler implements HttpHandler {
         String response = "404 : ErrorMissing :: " + message;
         System.out.println("errorMissingResource: " + response);
 
-        ex.sendResponseHeaders(404, response.length());
-        this.writeToOutputStream(ex.getResponseBody(), message);
+        ex.sendResponseHeaders(404, response.length() + 1);
+        this.writeToOutputStream(ex.getResponseBody(), response);
     }
 
     /**
@@ -136,7 +137,11 @@ public abstract class Handler implements HttpHandler {
      * @param   s   String to be written out.
      */
     protected void writeToOutputStream(OutputStream os, String s) throws IOException {
-        os.write(s.getBytes());
+        System.out.println("Writing to OutputStream: " + s);
+
+        final PrintStream printStream = new PrintStream(os);
+        printStream.print(s);
+        printStream.close();
         os.close();
     }
 

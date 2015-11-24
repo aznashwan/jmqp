@@ -134,11 +134,11 @@ public class MessageHandler extends Handler {
 
         // if here; it means that we're good.
         // send out StatusAccespted and a positive response:
-        String response = String.format(MessageHandler.acceptedResponseMessageFormat, to, message);
-        ex.sendResponseHeaders(202, response.length());
-        System.out.println(response);
+        String response = "202 : StatusAccepted :: " + String.format(MessageHandler.acceptedResponseMessageFormat, to, message);
+        System.out.println("Message acception response: " + response);
+        ex.sendResponseHeaders(202, response.length() + 1);
 
-        this.writeToOutputStream(ex.getResponseBody(), "202 : StatusAccepted :: " + response);
+        this.writeToOutputStream(ex.getResponseBody(),  response);
     }
 
 }

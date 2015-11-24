@@ -113,7 +113,7 @@ public class QueryHandler extends Handler {
                 result = this.messagingServer.getPersonalMessage(target);
             } catch(MessageServerPersonNotFoundException e) {
             	System.out.println(">>> CATCH 1, (missing username)");
-                this.errorMissingResource(ex, "Requested Username is missing: " + target);
+                this.errorMissingResource(ex, "Requested username is missing: " + target);
                 return;
             } catch(MessageQueueEmptyException e) {
             	System.out.println(">>> CATCH 2, (missing message queue)");
@@ -122,10 +122,10 @@ public class QueryHandler extends Handler {
             }
         }
         
-        System.out.println(">>>> SUCCESS >>> ");
+        System.out.println(">>>> SUCCESS >>> sending retrieved message: " + result);
 
         // if here; it means the message was succesfully fetched:
-        ex.sendResponseHeaders(200, result.length());
+        ex.sendResponseHeaders(200, result.length() + 1);
         this.writeToOutputStream(ex.getResponseBody(), result);
     }
 }
