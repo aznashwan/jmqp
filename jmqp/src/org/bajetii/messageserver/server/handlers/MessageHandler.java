@@ -59,6 +59,8 @@ public class MessageHandler extends Handler {
     public void handle(HttpExchange ex) throws IOException {
         Headers headers = ex.getRequestHeaders();
 
+        System.out.println("Message handler here!!!");
+        
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
         System.out.println(headers.containsKey("Type"));

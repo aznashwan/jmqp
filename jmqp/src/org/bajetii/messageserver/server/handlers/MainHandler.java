@@ -43,11 +43,14 @@ public class MainHandler extends Handler {
     public void handle(HttpExchange ex) throws IOException {
         String method = ex.getRequestMethod();
 
+        System.out.println(">>>>> METHOD >>>" + method);
         if(method.equalsIgnoreCase("GET")) {
+        	System.out.println(">>>> INSIDE GET BRANCH >>>");
             this.queryHandler.handle(ex);
             return;
         } else if(method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
-            this.messageHandler.handle(ex);
+        	System.out.println(">>>> INSIDE POST/PUT BRANCH >>>");
+        	this.messageHandler.handle(ex);
             return;
         } else {
             this.error(ex, 400, "400 : BadRequest :: Mehod is not supported: " + method);

@@ -71,10 +71,13 @@ public class QueryHandler extends Handler {
             }
 
             if(typ.equals("Topic")) {
+            	System.out.println(">>> THIS IS A TOPIC >>>");
                 type = RequestType.TOPIC;
             } else if(typ.equals("Personal")) {
+            	System.out.println(">>> THIS IS PERSONAL >>>");
                 type = RequestType.PERSONAL;
             } else {
+            	System.out.println(">>> OPS! BAD REQUEST >>>");
                 this.errorBadHeader(ex, MessageHandler.badTypeErrorFormat);
                 return;
             }
@@ -89,9 +92,11 @@ public class QueryHandler extends Handler {
         // now; get the recipient (located in the body) and a message:
         String result = "";
         String target = this.readInputStream(ex.getRequestBody());
+        System.out.println(">>> TARGET IS >>> " + target);
 
         // check if the request is for a topic discussion or not:
         if(type.equals(RequestType.TOPIC)) {
+        	System.out.println(">>>> GETTING RESULT FOR TOPIC >>>");
             try {
                 result = this.messagingServer.getTopicMessage(target);
             } catch(MessageServerTopicNotFoundException e) {
@@ -103,15 +108,20 @@ public class QueryHandler extends Handler {
             }
         } else { // NOTE: guaranteed to be RequestType.PERSONAL otherwise.
             try {
+            	System.out.println(">>>> GETTING RESULT FOR PERSONAL >>>");
                 result = this.messagingServer.getPersonalMessage(target);
             } catch(MessageServerPersonNotFoundException e) {
+            	System.out.println(">>> CATCH 1, (missing username)");
                 this.errorMissingResource(ex, "Requested Username is missing: " + target);
                 return;
             } catch(MessageQueueEmptyException e) {
+            	System.out.println(">>> CATCH 2, (missing message queue)");
                 this.errorMissingResource(ex, "Queue for user " + target + " is empty.");
                 return;
             }
         }
+        
+        System.out.println(">>>> SUCCESS >>> ");
 
         // if here; it means the message was succesfully fetched:
         ex.sendResponseHeaders(200, result.length());
