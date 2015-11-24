@@ -101,7 +101,7 @@ func validateParams() error {
 		}
 	} else {
 		// ensure it wans't required:
-		if topic {
+		if topic && !read {
 			return fmt.Errorf("The 'timeout' paramters is required if 'topic' is so.")
 		}
 	}
@@ -177,7 +177,7 @@ func sendMessage() error {
 	req.Header.Set("Type", getRequestType())
 	req.Header.Set("To", name)
 	if topic {
-		req.Header.Set("Timeout", string(timeout))
+		req.Header.Set("Timeout", fmt.Sprintf("%d", timeout))
 	}
 
 	// then; do the actual request:

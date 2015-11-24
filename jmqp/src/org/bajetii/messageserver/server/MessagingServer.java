@@ -94,7 +94,7 @@ public class MessagingServer {
      */
     public void addTopicQueue(String topic) {
         this.topicQueuesLock.lock();
-        this.topicQueues.put(topic, new TopicMessageQueue(20)); // NOTE
+        this.topicQueues.put(topic, new TopicMessageQueue(5)); // NOTE
         this.topicQueuesLock.unlock();
     }
 
