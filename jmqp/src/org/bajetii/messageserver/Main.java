@@ -20,17 +20,16 @@ public class Main {
         MessagingServer ms = new MessagingServer(30);
 
         HttpServer server;
-		try {
-	        // NOTE: hardcoded PORT !!!
-			server = HttpServer.create(new InetSocketAddress(8989), 100);
-			server.createContext("/bajetii/jmqp", new MainHandler(ms));
-	        server.setExecutor(null);
-	        server.start();
+        try {
+            // NOTE: hardcoded PORT !!!
+            server = HttpServer.create(new InetSocketAddress(8989), 100);
+            server.createContext("/bajetii/jmqp", new MainHandler(ms));
+            server.setExecutor(null);
+            server.start();
 
-	        System.out.println("Messaging server started. Listening on 8989.");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            System.out.println("Messaging server started. Listening on 8989.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

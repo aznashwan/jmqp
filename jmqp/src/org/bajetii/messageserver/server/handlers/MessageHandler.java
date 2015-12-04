@@ -67,7 +67,7 @@ public class MessageHandler extends Handler {
         if(headers.containsKey("Type")) {
             // then; check that it is either 'Topic' or 'Personal':
             String typ = headers.get("Type").get(0);
-            System.out.println(">>>> " + typ);
+
             if(!this.checkType(typ)) {
                 this.errorBadHeader(ex, badTypeErrorFormat);
                 return;
@@ -99,7 +99,7 @@ public class MessageHandler extends Handler {
 
         // now; get the body (aka the message) and do the appropriate action:
         String message = this.readInputStream(ex.getRequestBody());
-        System.out.println(">>>>>> MESAGE IS >>>>> " + message);
+
 
         if(type.equals(RequestType.TOPIC)) {
             System.out.println("Adding topic message \"" + message + "\" for " + to + ".");
