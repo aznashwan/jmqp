@@ -2,8 +2,11 @@ package org.bajetii.messageserver.server.handlers;
 
 
 import java.io.IOException;
+import java.util.Map;
 
-import org.bajetii.messageserver.server.MessagingServer;
+import org.bajetii.messageserver.server.events.IEventDispatcher;
+import org.bajetii.messageserver.server.messages.StringMessage;
+import org.bajetii.messageserver.server.messages.TopicMessage;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueFullException;
 
 import com.sun.net.httpserver.Headers;
@@ -43,9 +46,9 @@ public class MessageHandler extends Handler {
     protected static final String acceptedResponseMessageFormat = "The message was accepted for '%s': '%s'.";
 
     /**
-     * A MessageHandler is created provided the MessagingServer it represents.
+     * A MessageHandler is created provided the MessagingEventServer it represents.
      */
-    public MessageHandler(MessagingServer ms) {
+    public MessageHandler(IEventDispatcher ms) {
          super(ms);
     }
 
@@ -60,7 +63,7 @@ public class MessageHandler extends Handler {
         Headers headers = ex.getRequestHeaders();
 
         System.out.println("Message handler here!!!");
-        
+
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
         System.out.println(headers.containsKey("Type"));
@@ -101,6 +104,7 @@ public class MessageHandler extends Handler {
         String message = this.readInputStream(ex.getRequestBody());
 
 
+        String result = "";
         if(type.equals(RequestType.TOPIC)) {
             System.out.println("Adding topic message \"" + message + "\" for " + to + ".");
             // check for the mandatory 'Timeout' header:
@@ -119,13 +123,19 @@ public class MessageHandler extends Handler {
             }
 
             try {
-                this.messagingServer.addTopicMessage(to, message, timeout);
+                Map<String, String> hds = this.getHeaderSpecs(ex.getRequestHeaders());
+                hds.put("EventType", "POST");
+
+                result = this.eventDispatcher.dispatchEvent(new TopicMessage(hds, message, timeout));
             } catch(Exception e) {
             }
         } else {    // guaranteed to be a RequestType.PERSONAL; so we can just else:
             System.out.println("Adding personal message \"" + message + "\" for " + to + ".");
             try {
-                this.messagingServer.addPersonalMessage(to, message);
+                Map<String, String> hds = this.getHeaderSpecs(ex.getRequestHeaders());
+                hds.put("EventType", "POST");
+
+                result = this.eventDispatcher.dispatchEvent(new StringMessage(hds, message));
             } catch(MessageQueueFullException e) {
                 this.error(ex, 406, "406 : ErrorUnnaceptable :: the person's inbox is full.");
                 return;
@@ -134,7 +144,7 @@ public class MessageHandler extends Handler {
 
         // if here; it means that we're good.
         // send out StatusAccespted and a positive response:
-        String response = "202 : StatusAccepted :: " + String.format(MessageHandler.acceptedResponseMessageFormat, to, message);
+        String response = "202 : StatusAccepted :: " + result;
         System.out.println("Message acception response: " + response);
         ex.sendResponseHeaders(202, response.length() + 1);
 

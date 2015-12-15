@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-import org.bajetii.messageserver.server.MessagingServer;
+import org.bajetii.messageserver.server.events.IEventDispatcher;
 
 
 /**
@@ -25,9 +25,9 @@ public class MainHandler extends Handler {
 
     /**
      * A MainHandler; like any other Handler, is created given the
-     * MessagingServer it represents.
+     * IEventDispatcher it represents.
      */
-    public MainHandler(MessagingServer ms) {
+    public MainHandler(IEventDispatcher ms) {
         super(ms);
         this.messageHandler = new MessageHandler(ms);
         this.queryHandler = new QueryHandler(ms);
@@ -45,12 +45,12 @@ public class MainHandler extends Handler {
 
 
         if(method.equalsIgnoreCase("GET")) {
-            System.out.println("Beginning fetching procedure.")
+            System.out.println("Beginning fetching procedure.");
 
             this.queryHandler.handle(ex);
             return;
         } else if(method.equalsIgnoreCase("POST") || method.equalsIgnoreCase("PUT")) {
-            System.out.println("Beginning posting procedure.")
+            System.out.println("Beginning posting procedure.");
 
             this.messageHandler.handle(ex);
             return;

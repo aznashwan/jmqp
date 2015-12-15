@@ -5,11 +5,15 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.HashMap;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
-import org.bajetii.messageserver.server.MessagingServer;
+import org.bajetii.messageserver.server.events.IEvent;
+import org.bajetii.messageserver.server.events.IEventDispatcher;
 
 /**
  * Handler is the handler which deals with deciding which action to take
@@ -26,18 +30,18 @@ public abstract class Handler implements HttpHandler {
     protected static final String badTypeErrorFormat = "'Type' must be either 'Topic' or 'Personal'.";
 
     /**
-     * messagingServer is a reference to the MessagingServer this
+     * eventDispatcher is a reference to the MessagingServer this
      * Handler represents.
      */
-    protected MessagingServer messagingServer;
+    protected IEventDispatcher eventDispatcher;
 
     /**
      * A Handler is created provided the Server is facades.
      * <p>
      * @param   server  the Server which is represented.
      */
-    public Handler(MessagingServer ms) {
-        this.messagingServer = ms;
+    public Handler(IEventDispatcher ms) {
+        this.eventDispatcher = ms;
     }
 
     /**
@@ -127,6 +131,18 @@ public abstract class Handler implements HttpHandler {
         is.close();
 
         return  buff;
+    }
+
+    /**
+     * getHeaderSpecs returns the request headers as a map.
+     */
+    protected Map<String, String> getHeaderSpecs(Headers headers) {
+        Map<String, String> m = new HashMap<String, String>();
+
+        m.put("To", headers.get("To").get(0));
+        m.put("Type", headers.get("Type").get(0));
+
+        return m;
     }
 
     /**

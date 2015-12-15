@@ -1,14 +1,19 @@
 package org.bajetii.messageserver.server.messages;
 
+
+import org.bajetii.messageserver.server.events.IEvent;
+
 /**
  * IMessage represents the properties of the entity which is
  * the main handled object of the MessagingServer.
+ *
+ * A message is also an event.
  * <p>
  * It provides the usual properties exposed by your average String, whilst
  * allowing for implementing classes to hide the backend data format used for
  * its representation (ex: binary; ascii; unicode etc...)
  */
-public interface IMessage {
+public interface IMessage extends IEvent {
 
     /**
      * getStringValue returns the String representation of the IMessage.
@@ -30,7 +35,7 @@ public interface IMessage {
         if((other == null) || !(other instanceof IMessage)) {
             return false;
         }
-        
+
         IMessage otherMessage = (IMessage) other;
         return this.getStringValue() == otherMessage.getStringValue();
     }

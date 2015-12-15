@@ -6,7 +6,8 @@ import java.net.InetSocketAddress;
 
 import com.sun.net.httpserver.HttpServer;
 
-import org.bajetii.messageserver.server.MessagingServer;
+import org.bajetii.messageserver.server.events.IEventDispatcher;
+import org.bajetii.messageserver.server.MessagingEventServer;
 import org.bajetii.messageserver.server.handlers.MainHandler;
 
 public class Main {
@@ -17,7 +18,7 @@ public class Main {
      */
     public static void main(String args[]) {
         // NOTE: hardcoded timeout !!!
-        MessagingServer ms = new MessagingServer(30);
+        IEventDispatcher ms = new MessagingEventServer(30);
 
         HttpServer server;
         try {

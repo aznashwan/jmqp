@@ -2,6 +2,7 @@ package org.bajetii.messageserver.server.messages;
 
 
 import java.util.Date;
+import java.util.Map;
 import java.lang.System;
 
 
@@ -22,11 +23,12 @@ public class TopicMessage extends StringMessage implements IMessage {
      * If the desired timeout is specified in seconds; the timeout moment
      * will be internally computed; which may cause a slight loss of precision.
      *
+     * @param   meta    the Map<String, String> of Message metadata.
      * @param   message the message String to be encapsulated.
      * @param   seconds the number of seconds of timeout.
      */
-    public TopicMessage(String message, int seconds) {
-        super(message);
+    public TopicMessage(Map<String, String> meta, String message, int seconds) {
+        super(meta, message);
         Date date = new Date(System.currentTimeMillis());
         this.timeout = new Date(date.getTime() + 1000 * seconds);
     }
@@ -35,11 +37,12 @@ public class TopicMessage extends StringMessage implements IMessage {
      * A TopicMessage can be created by providing the String message
      * and the moment of timeout.
      * <p>
+     * @param   meta    the Map<String, String> of Message metadata.
      * @param   message the message String to be encapsulated.
      * @param   timeout the Date object representing the moment of timeout.
      */
-    public TopicMessage(String message, Date timeout) {
-        super(message);
+    public TopicMessage(Map<String, String> meta, String message, Date timeout) {
+        super(meta, message);
         this.timeout = timeout;
     }
 

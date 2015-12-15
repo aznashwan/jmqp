@@ -2,7 +2,10 @@ package org.bajetii.messageserver.server.queues;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.bajetii.messageserver.server.events.IEvent;
 import org.bajetii.messageserver.server.messages.IMessage;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueEmptyException;
 
@@ -17,24 +20,29 @@ import org.bajetii.messageserver.server.queues.exceptions.MessageQueueEmptyExcep
 public abstract class MessageQueue implements IMessageQueue {
 
     /**
-     * messages is the ArrayList of message objects.
+     * to is the name/id of the entity this queue is decicated to:
      */
-    protected ArrayList<IMessage> messages;
+    protected String to;
+
+    /**
+     * messages is the synchronized List of message objects.
+     */
+    protected List<IMessage> messages;
 
 
     /**
      * A MessageQueue's construction involves the instantiation of its
      * internal ArrayList which holds its messages.
+     * <p>
+     * @param   to  String name of the object of the queue.
      */
-    protected MessageQueue() {
-        this.messages = new ArrayList<IMessage>();
+    protected MessageQueue(String to) {
+        this.to = to;
+        this.messages = Collections.synchronizedList(new ArrayList<IMessage>());
     }
 
     /**
      * addMessage adds the given message to the internal message list.
-     * <p>
-     * It is meant to be used by inheriting classes alongside the respective
-     * addition logic of each queue in a synchronized manner.
      */
     @Override
     public void addMessage(IMessage message) {
@@ -43,9 +51,6 @@ public abstract class MessageQueue implements IMessageQueue {
 
     /**
      * getMessage returns the first message available in the queue.
-     * <p>
-     * It is meant to be used by inheriting classes alongside the respective
-     * getting logic of each queue type in a synchronized manner.
      *
      * @throws  MessageQueueEmptyException if the queue is empty.
      */
@@ -60,10 +65,6 @@ public abstract class MessageQueue implements IMessageQueue {
     /**
      * getMessages returns all the messages currently in the queue.
      * <p>
-     * In order to avoid any escaped internal state problems; getMessages
-     * returns a new Array with the contained IMessages.
-     * Considering that the IMessage interface exposes no mutable operations,
-     * it is safe to not bother deep-copying the IMessages themselves.
      */
     @Override
     public IMessage[] getMessages() {
@@ -73,9 +74,40 @@ public abstract class MessageQueue implements IMessageQueue {
     /**
      * cleanup performs cleanup operations on the queue's messages.
      * <p>
-     * It is meant to be implemented in all inheriting classes;
-     * and be made to be thread-safe.
      */
     public abstract void cleanup();
+
+    /**
+     * cares returns true if the provided IMessage's meta 'To' is set to the
+     * given topic 'to'.
+     * <p>
+     * @param   IEvent  the IEvent to check interest for.
+     * @return  boolean true if the provided IEvent is interesting and will be
+     *                  handled by this Queue.
+     */
+    public boolean cares(IEvent e) {
+        // NOTE: 'To' guaranteed to be in the meta of the event:
+        return e.getEventMetadata().get("To").equals(this.to);
+    }
+
+    /**
+     * handleEvent handles the given IEvent and returns a String response:
+     */
+    public String handleEvent(IEvent e) {
+        // NOTE: EventType guaranteed to be present:
+        String action = e.getEventMetadata().get("EventType");
+
+        if(action.equals("GET")) {
+            try {
+                return this.getMessage().getStringValue();
+            } catch(MessageQueueEmptyException ex) {
+                return "No message in queue for '" + this.to + "'.";
+            }
+        } else {
+            // guaranteed to pe a "PUT/POST":
+            this.addMessage(e);
+            return "Message succesfully added for '" + this.to + "'.";
+        }
+    }
 
 }

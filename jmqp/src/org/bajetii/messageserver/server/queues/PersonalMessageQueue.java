@@ -1,9 +1,9 @@
 package org.bajetii.messageserver.server.queues;
 
 
-import java.util.ArrayList;
-
+import org.bajetii.messageserver.server.events.IEvent;
 import org.bajetii.messageserver.server.messages.IMessage;
+import org.bajetii.messageserver.server.messages.StringMessage;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueFullException;
 
 
@@ -24,23 +24,24 @@ public class PersonalMessageQueue extends MessageQueue {
 
     /**
      * A PersonalMessageQueue is created provided the maximum message
-     * capacity it posses.
+     * capacity it posseses.
      * <p>
+     * @param   to      String name of the object of the Queue.
      * @param   maxCap  the maximum number of elements the queue can hold.
      */
-    public PersonalMessageQueue(int maxCapacity) {
-        super();
+    public PersonalMessageQueue(String to, int maxCapacity) {
+        super(to);
         this.maxCapacity = maxCapacity;
     }
 
     /**
      * addMessage adds the given IMessage to the queue.
      * <p>
-     * Execution falls under the monitor lock to ensure thread-safety.
+     *
      * @throws  MessageQueueFullException   if the queue is at maximum capacity
      */
     @Override
-    public synchronized void addMessage(IMessage message) {
+    public void addMessage(IMessage message) {
         if(this.messages.size() == this.maxCapacity) {
             throw new MessageQueueFullException();
         }
@@ -49,15 +50,26 @@ public class PersonalMessageQueue extends MessageQueue {
     }
 
     /**
+     * addMessage adds the given IEvent as an IMessage.
+     */
+    public void addMessage(IEvent e) {
+         if(this.messages.size() == this.maxCapacity) {
+            throw new MessageQueueFullException();
+        }
+
+        super.addMessage(new StringMessage(e.getEventMetadata(), e.getEventPayload()));
+    }
+
+    /**
      * getMessage returns the first element in the queue and removes it.
      * <p>
-     * Execution falls under the monitor lock to ensure thread-safety.
+     *
      * @throws  MessageQueueEmptyException  if the MessageQueue has no messages
      *
      * @return  IMessage    the first IMessage in the MessageQueue.
      */
     @Override
-    public synchronized IMessage getMessage() {
+    public IMessage getMessage() {
         IMessage message = super.getMessage();
 
         this.messages.remove(0);
@@ -68,16 +80,15 @@ public class PersonalMessageQueue extends MessageQueue {
     /**
      * getMessages returns the all the messages currently in the queue.
      * <p>
-     * Execution falls under the monitor lock to ensure thread-safety.
      * Considering message getting is destructive in the context of
      * PersonalMessagingQueues; it resets the message queue after the fetch.
      *
      * @return  IMessage[]  the Array of all messages contained in the queue.
      */
-    public synchronized IMessage[] getMessages() {
+    public IMessage[] getMessages() {
         IMessage[] messgs = this.messages.toArray(new IMessage[this.messages.size()]);
 
-        this.messages = new ArrayList<IMessage>();
+        this.messages.clear();
 
         return messgs;
     }

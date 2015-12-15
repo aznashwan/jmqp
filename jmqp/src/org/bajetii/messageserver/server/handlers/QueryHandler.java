@@ -1,12 +1,14 @@
 package org.bajetii.messageserver.server.handlers;
 
 
+import java.util.Map;
 import java.io.IOException;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
-import org.bajetii.messageserver.server.MessagingServer;
+import org.bajetii.messageserver.server.events.IEventDispatcher;
+import org.bajetii.messageserver.server.events.ReadEvent;
 import org.bajetii.messageserver.server.queues.exceptions.MessageQueueEmptyException;
 import org.bajetii.messageserver.server.exceptions.MessageServerPersonNotFoundException;
 import org.bajetii.messageserver.server.exceptions.MessageServerTopicNotFoundException;
@@ -37,9 +39,9 @@ import org.bajetii.messageserver.server.exceptions.MessageServerTopicNotFoundExc
 public class QueryHandler extends Handler {
 
     /**
-     * A QueryHandler is created provided the MessagingServer it represents.
+     * A QueryHandler is created provided the IEventDispatcher it represents.
      */
-    public QueryHandler(MessagingServer ms) {
+    public QueryHandler(IEventDispatcher ms) {
          super(ms);
     }
 
@@ -56,7 +58,7 @@ public class QueryHandler extends Handler {
         Headers headers = ex.getRequestHeaders();
 
         System.out.println("QueryHandler handle() method has been called.");
-        
+
         // first; check the headers for 'Type':
         RequestType type = RequestType.PERSONAL;
         if(headers.containsKey("Type")) {
@@ -104,7 +106,10 @@ public class QueryHandler extends Handler {
         if(type.equals(RequestType.TOPIC)) {
 
             try {
-                result = this.messagingServer.getTopicMessage(target);
+                Map<String, String> hds = this.getHeaderSpecs(ex.getRequestHeaders());
+                hds.put("EventType", "GET");
+
+                result = this.eventDispatcher.dispatchEvent(new ReadEvent(hds, "Topic"));
             } catch(MessageServerTopicNotFoundException e) {
                 this.errorMissingResource(ex, "Requested Topic is missing: " + target);
                 return;
@@ -115,8 +120,10 @@ public class QueryHandler extends Handler {
         } else { // NOTE: guaranteed to be RequestType.PERSONAL otherwise.
             System.out.println("Fetching personal message for " + target);
             try {
+                Map<String, String> hds = this.getHeaderSpecs(ex.getRequestHeaders());
+                hds.put("EventType", "GET");
 
-                result = this.messagingServer.getPersonalMessage(target);
+                result = this.eventDispatcher.dispatchEvent(new ReadEvent(hds, "Personal"));
             } catch(MessageServerPersonNotFoundException e) {
 
                 this.errorMissingResource(ex, "Requested username is missing: " + target);
@@ -127,7 +134,6 @@ public class QueryHandler extends Handler {
                 return;
             }
         }
-        
 
 
         // if here; it means the message was succesfully fetched:

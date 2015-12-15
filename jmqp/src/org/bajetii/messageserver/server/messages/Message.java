@@ -5,6 +5,8 @@ package org.bajetii.messageserver.server.messages;
  * <p>
  * It provides the added benefits of defaulting equals and toString to
  * IMessage's valuesEqual() and getStringValue()
+ *
+ * It fully implements the IEvent interface.
  */
 public abstract class Message implements IMessage {
 
